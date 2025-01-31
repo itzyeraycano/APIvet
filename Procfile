@@ -1,2 +1,2 @@
-web: gunicorn AppLocal:app
+web: python AppLocal.py
 
