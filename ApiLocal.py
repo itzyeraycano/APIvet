@@ -39,7 +39,7 @@ def obtener_animales():
     }
     return jsonify(resultado)
 
-# Endpoint para obtener un animal específico por nombre
+# Endpoint para obtener un animal espec?fico por nombre
 @app.route('/animales/<string:nombre>', methods=['GET'])
 def obtener_animal(nombre):
     animal = Animal.query.get(nombre)
@@ -88,10 +88,10 @@ def actualizar_animal(nombre):
     db.session.commit()
     return jsonify({"mensaje": "Animal actualizado correctamente"})
 
-# Endpoint para eliminar un animal por nombre (requiere autenticación)
+# Endpoint para eliminar un animal por nombre (requiere autenticaci?n)
 @app.route('/animales/<string:nombre>', methods=['DELETE'])
 def eliminar_animal(nombre):
-    clave_secreta = "API_CLAVE"  # Define una clave de autenticación
+    clave_secreta = "API_CLAVE"  # Define una clave de autenticaci?n
     clave_usuario = request.headers.get("Authorization")
 
     if clave_usuario != clave_secreta:
