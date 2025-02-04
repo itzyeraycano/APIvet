@@ -4,6 +4,7 @@ import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from collections import OrderedDict
+from flask_migrate import Migrate  # Importar Migrate
 
 app = Flask(__name__)
 
@@ -18,7 +19,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
-    
+
+# Crear la instancia de Migrate
+migrate = Migrate(app, db)    
 
 # Definir el modelo de datos
 class Animal(db.Model):
