@@ -7,13 +7,14 @@ from collections import OrderedDict
 
 app = Flask(__name__)
 
-# Configurar la base de datos (SQLite en local, PostgreSQL en Heroku)
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///animales.db")
-if DATABASE_URL.startswith("postgres://"):  # Fix para compatibilidad con Heroku
+# Obtener la URL de la base de datos desde las variables de entorno
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+# Corregir formato si es necesario
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# Configurar la base de datos SQLite
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
