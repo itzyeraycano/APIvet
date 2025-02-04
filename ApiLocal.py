@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
-
+import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from collections import OrderedDict
 
 app = Flask(__name__)
+
+# Configurar la base de datos (SQLite en local, PostgreSQL en Heroku)
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///animales.db")
+if DATABASE_URL.startswith("postgres://"):  # Fix para compatibilidad con Heroku
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # Configurar la base de datos SQLite
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///animales.db"
@@ -54,6 +59,8 @@ def obtener_animal(nombre):
         }
     }
     return jsonify(resultado)
+
+
 # Endpoint para agregar un animal
 @app.route('/animales', methods=['POST'])
 def agregar_animal():
@@ -71,6 +78,7 @@ def agregar_animal():
     db.session.add(nuevo_animal)
     db.session.commit()
     return jsonify({"mensaje": "Animal agregado correctamente"}), 201
+
 
 # Endpoint para actualizar un animal por nombre
 @app.route('/animales/<string:nombre>', methods=['PUT'])
