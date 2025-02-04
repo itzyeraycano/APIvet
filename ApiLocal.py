@@ -13,11 +13,11 @@ if DATABASE_URL.startswith("postgres://"):  # Fix para compatibilidad con Heroku
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # Configurar la base de datos SQLite
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///animales.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
-
+    
 
 # Definir el modelo de datos
 class Animal(db.Model):
