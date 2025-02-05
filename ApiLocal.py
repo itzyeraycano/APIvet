@@ -35,6 +35,11 @@ class Animal(db.Model):
 #with app.app_context():
 #    db.create_all()
 
+@app.route('/')
+def home():
+    return "Bienvenido a la API de animales"
+
+
 # Endpoint para obtener todos los animales
 @app.route('/animales', methods=['GET'])
 def obtener_animales():
