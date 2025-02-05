@@ -32,8 +32,8 @@ class Animal(db.Model):
   
    
 # Crear la base de datos
-with app.app_context():
-    db.create_all()
+#with app.app_context():
+#    db.create_all()
 
 # Endpoint para obtener todos los animales
 @app.route('/animales', methods=['GET'])
