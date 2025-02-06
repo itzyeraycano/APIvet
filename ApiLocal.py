@@ -5,8 +5,11 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from collections import OrderedDict
 from flask_migrate import Migrate  # Importar Migrate
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+CORS(app)
 
 # Obtener la URL de la base de datos desde las variables de entorno
 DATABASE_URL = os.environ.get("DATABASE_URL")
