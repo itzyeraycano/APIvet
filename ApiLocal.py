@@ -28,14 +28,26 @@ db = SQLAlchemy(app)
 # Crear la instancia de Migrate
 migrate = Migrate(app, db)    
 
-# Definir el modelo de datos
+# Definir el modelo de datos para los animales
 class Animal(db.Model):
-    nombre= db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)  # Agregar un ID único
+    nombre = db.Column(db.String(50), nullable=False, unique=True)
     tipo = db.Column(db.String(50), nullable=False)
     raza = db.Column(db.String(50), nullable=False)
     color = db.Column(db.String(50), nullable=False)
-  
-   
+    foto = db.Column(db.String(200), nullable=True)  # Foto del animal
+    fecha_nacimiento = db.Column(db.String(50), nullable=True)  # Fecha de nacimiento
+    
+    # Relación con las vacunas
+    vacunas = db.relationship('Vacuna', backref='animal', lazy=True)
+
+class Vacuna(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), nullable=False)
+    fecha = db.Column(db.String(50), nullable=False)
+    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)  # Relación con Animal
+
+
 # Crear la base de datos
 #with app.app_context():
 #    db.create_all()
@@ -51,25 +63,34 @@ def obtener_animales():
     animales = Animal.query.all()
     resultado = {
         animal.nombre: {
+            "id": animal.id,
             "tipo": animal.tipo,
             "raza": animal.raza,
-            "color": animal.color
+            "color": animal.color,
+            "foto": animal.foto,
+            "fecha_nacimiento": animal.fecha_nacimiento,
+            "vacunas": {vacuna.nombre: vacuna.fecha for vacuna in animal.vacunas}  # Vacunas del animal
         } for animal in animales
     }
     return jsonify(resultado)
 
+
 # Endpoint para obtener un animal espec?fico por nombre
 @app.route('/animales/<string:nombre>', methods=['GET'])
 def obtener_animal(nombre):
-    animal = Animal.query.get(nombre)
+    animal = Animal.query.filter_by(nombre=nombre).first()
     if not animal:
         return jsonify({"mensaje": "Animal no encontrado"}), 404
 
     resultado = {
         animal.nombre: {
+            "id": animal.id,
             "tipo": animal.tipo,
             "raza": animal.raza,
-            "color": animal.color
+            "color": animal.color,
+            "foto": animal.foto,
+            "fecha_nacimiento": animal.fecha_nacimiento,
+            "vacunas": {vacuna.nombre: vacuna.fecha for vacuna in animal.vacunas}
         }
     }
     return jsonify(resultado)
@@ -100,18 +121,21 @@ def buscar_animales():
 def agregar_animal():
     datos = request.json
     # Verificar si el animal con el nombre ya existe
-    if Animal.query.get(datos["nombre"]):
+    if Animal.query.filter_by(nombre=datos["nombre"]).first():
         return jsonify({"mensaje": "Ya existe un animal con ese nombre"}), 400
-    
+
     nuevo_animal = Animal(
+        nombre=datos["nombre"],
         tipo=datos["tipo"],
         raza=datos["raza"],
         color=datos["color"],
-        nombre=datos["nombre"]
+        foto=datos.get("foto", None),
+        fecha_nacimiento=datos.get("fecha_nacimiento", None)
     )
     db.session.add(nuevo_animal)
     db.session.commit()
     return jsonify({"mensaje": "Animal agregado correctamente"}), 201
+
 
 
 # Endpoint para actualizar un animal por nombre
@@ -146,6 +170,34 @@ def eliminar_animal(nombre):
     db.session.delete(animal)
     db.session.commit()
     return jsonify({"mensaje": "Animal eliminado correctamente"})
+
+# Endpoint para agregar una vacuna a un animal
+@app.route('/animales/<int:id>/vacunas', methods=['POST'])
+def agregar_vacuna(id):
+    animal = Animal.query.get(id)
+    if not animal:
+        return jsonify({"mensaje": "Animal no encontrado"}), 404
+
+    datos = request.json
+    nueva_vacuna = Vacuna(
+        nombre=datos["nombre"],
+        fecha=datos["fecha"],
+        animal_id=id
+    )
+    db.session.add(nueva_vacuna)
+    db.session.commit()
+    return jsonify({"mensaje": "Vacuna añadida correctamente"}), 201
+
+# Endpoint para obtener las vacunas de un animal
+@app.route('/animales/<int:id>/vacunas', methods=['GET'])
+def obtener_vacunas(id):
+    animal = Animal.query.get(id)
+    if not animal:
+        return jsonify({"mensaje": "Animal no encontrado"}), 404
+
+    vacunas = {vacuna.nombre: vacuna.fecha for vacuna in animal.vacunas}
+    return jsonify(vacunas)
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000,debug=True)
