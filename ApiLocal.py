@@ -35,8 +35,13 @@ class Animal(db.Model):
   
    
 # Crear la base de datos
-with app.app_context():
-    db.create_all()
+#with app.app_context():
+#    db.create_all()
+
+@app.route('/')
+def home():
+    return "Bienvenido a la API de animales"
+
 
 # Endpoint para obtener todos los animales
 @app.route('/animales', methods=['GET'])
@@ -66,6 +71,26 @@ def obtener_animal(nombre):
         }
     }
     return jsonify(resultado)
+
+# Buscar animales por tipo, color o raza
+@app.route('/animales/buscar', methods=['GET'])
+def buscar_animales():
+    tipo = request.args.get('tipo')
+    color = request.args.get('color')
+    raza = request.args.get('raza')
+
+    query = Animal.query
+
+    if tipo:
+        query = query.filter(Animal.tipo == tipo)
+    if color:
+        query = query.filter(Animal.color == color)
+    if raza:
+        query = query.filter(Animal.raza == raza)
+
+    animales = query.all()
+
+    return jsonify([animal.as_dict() for animal in animales]), 200
 
 
 # Endpoint para agregar un animal
