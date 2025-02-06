@@ -5,6 +5,8 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from collections import OrderedDict
 from flask_cors import CORS  # Importa CORS
+from flask_migrate import Migrate
+
 
 app = Flask(__name__)
 
