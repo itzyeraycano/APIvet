@@ -189,14 +189,25 @@ def agregar_vacuna(id):
     return jsonify({"mensaje": "Vacuna agregada correctamente"}), 201
 
 # Endpoint para obtener las vacunas de un animal
-@app.route('/animales/<int:id>/vacunas', methods=['GET'])
-def obtener_vacunas(id):
+@app.route('/animales/<int:id>', methods=['GET'])
+def obtener_animal(id):
     animal = Animal.query.get(id)
     if not animal:
         return jsonify({"mensaje": "Animal no encontrado"}), 404
 
-    vacunas = {vacuna.nombre: vacuna.fecha for vacuna in animal.vacunas}
-    return jsonify(vacunas)
+    # Incluir las vacunas dentro de los datos del animal
+    resultado = {
+        "id": animal.id,
+        "nombre": animal.nombre,
+        "tipo": animal.tipo,
+        "raza": animal.raza,
+        "color": animal.color,
+        "foto": animal.foto,
+        "fecha_nacimiento": animal.fecha_nacimiento,
+        "vacunas": {vacuna.nombre: vacuna.fecha for vacuna in animal.vacunas}  # Vacunas del animal
+    }
+
+    return jsonify(resultado)
 
 
 if __name__ == '__main__':
