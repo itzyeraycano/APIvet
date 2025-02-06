@@ -186,7 +186,7 @@ def agregar_vacuna(id):
     )
     db.session.add(nueva_vacuna)
     db.session.commit()
-    return jsonify({"mensaje": "Vacuna añadida correctamente"}), 201
+    return jsonify({"mensaje": "Vacuna agregada correctamente"}), 201
 
 # Endpoint para obtener las vacunas de un animal
 @app.route('/animales/<int:id>/vacunas', methods=['GET'])
