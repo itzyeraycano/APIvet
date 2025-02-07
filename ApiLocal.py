@@ -190,7 +190,7 @@ def agregar_vacuna(id):
 
 # Endpoint para obtener las vacunas de un animal
 @app.route('/animales/<int:id>', methods=['GET'])
-def obtener_animal(id):
+def obtener_animal_por_id(id):
     animal = Animal.query.get(id)
     if not animal:
         return jsonify({"mensaje": "Animal no encontrado"}), 404
