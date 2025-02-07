@@ -10,7 +10,7 @@ from flask_migrate import Migrate
 
 app = Flask(__name__)
 
-CORS(app)  # Habilita CORS para toda la aplicaci�n
+CORS(app)  # Habilita CORS para toda la aplicacion
 
 
 # Obtener la URL de la base de datos desde las variables de entorno
@@ -30,7 +30,7 @@ migrate = Migrate(app, db)
 
 # Definir el modelo de datos para los animales
 class Animal(db.Model):
-    id = db.Column(db.Integer, primary_key=True)  # Agregar un ID �nico
+    id = db.Column(db.Integer, primary_key=True)  # Agregar un ID unico
     nombre = db.Column(db.String(50), nullable=False, unique=True)
     tipo = db.Column(db.String(50), nullable=False)
     raza = db.Column(db.String(50), nullable=False)
@@ -38,14 +38,14 @@ class Animal(db.Model):
     foto = db.Column(db.String(200), nullable=True)  # Foto del animal
     fecha_nacimiento = db.Column(db.String(50), nullable=True)  # Fecha de nacimiento
     
-    # Relaci�n con las vacunas
+    # Relacion con las vacunas
     vacunas = db.relationship('Vacuna', backref='animal', lazy=True)
 
 class Vacuna(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
     fecha = db.Column(db.String(50), nullable=False)
-    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)  # Relaci�n con Animal
+    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)  # Relacion con Animal
 
 
 # Crear la base de datos
