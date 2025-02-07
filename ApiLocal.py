@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ï»¿# -*- coding: utf-8 -*-
 
 import os
 from flask import Flask, request, jsonify
@@ -10,7 +10,7 @@ from flask_migrate import Migrate
 
 app = Flask(__name__)
 
-CORS(app)  # Habilita CORS para toda la aplicación
+CORS(app)  # Habilita CORS para toda la aplicaciï¿½n
 
 
 # Obtener la URL de la base de datos desde las variables de entorno
@@ -30,7 +30,7 @@ migrate = Migrate(app, db)
 
 # Definir el modelo de datos para los animales
 class Animal(db.Model):
-    id = db.Column(db.Integer, primary_key=True)  # Agregar un ID único
+    id = db.Column(db.Integer, primary_key=True)  # Agregar un ID ï¿½nico
     nombre = db.Column(db.String(50), nullable=False, unique=True)
     tipo = db.Column(db.String(50), nullable=False)
     raza = db.Column(db.String(50), nullable=False)
@@ -38,14 +38,14 @@ class Animal(db.Model):
     foto = db.Column(db.String(200), nullable=True)  # Foto del animal
     fecha_nacimiento = db.Column(db.String(50), nullable=True)  # Fecha de nacimiento
     
-    # Relación con las vacunas
+    # Relaciï¿½n con las vacunas
     vacunas = db.relationship('Vacuna', backref='animal', lazy=True)
 
 class Vacuna(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
     fecha = db.Column(db.String(50), nullable=False)
-    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)  # Relación con Animal
+    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)  # Relaciï¿½n con Animal
 
 
 # Crear la base de datos
@@ -71,27 +71,6 @@ def obtener_animales():
             "fecha_nacimiento": animal.fecha_nacimiento,
             "vacunas": {vacuna.nombre: vacuna.fecha for vacuna in animal.vacunas}  # Vacunas del animal
         } for animal in animales
-    }
-    return jsonify(resultado)
-
-
-# Endpoint para obtener un animal espec?fico por nombre
-@app.route('/animales/<string:nombre>', methods=['GET'])
-def obtener_animal(nombre):
-    animal = Animal.query.filter_by(nombre=nombre).first()
-    if not animal:
-        return jsonify({"mensaje": "Animal no encontrado"}), 404
-
-    resultado = {
-        animal.nombre: {
-            "id": animal.id,
-            "tipo": animal.tipo,
-            "raza": animal.raza,
-            "color": animal.color,
-            "foto": animal.foto,
-            "fecha_nacimiento": animal.fecha_nacimiento,
-            "vacunas": {vacuna.nombre: vacuna.fecha for vacuna in animal.vacunas}
-        }
     }
     return jsonify(resultado)
 
@@ -141,7 +120,7 @@ def agregar_animal():
 # Endpoint para actualizar un animal por nombre
 @app.route('/animales/<string:nombre>', methods=['PUT'])
 def actualizar_animal(nombre):
-    animal = Animal.query.get(nombre)
+    animal = Animal.query.filter_by(nombre=nombre).first()  # Cambiado a filter_by
     if not animal:
         return jsonify({"mensaje": "Animal no encontrado"}), 404
 
@@ -154,16 +133,17 @@ def actualizar_animal(nombre):
     db.session.commit()
     return jsonify({"mensaje": "Animal actualizado correctamente"})
 
-# Endpoint para eliminar un animal por nombre (requiere autenticaci?n)
+
+# Endpoint para eliminar un animal por nombre (requiere autenticaciÃ³n)
 @app.route('/animales/<string:nombre>', methods=['DELETE'])
 def eliminar_animal(nombre):
-    clave_secreta = "API_CLAVE"  # Define una clave de autenticaci?n
+    clave_secreta = "API_CLAVE"  # Define una clave de autenticaciÃ³n
     clave_usuario = request.headers.get("Authorization")
 
     if clave_usuario != clave_secreta:
         return jsonify({"mensaje": "No tienes permisos para eliminar animales"}), 403
 
-    animal = Animal.query.get(nombre)
+    animal = Animal.query.filter_by(nombre=nombre).first()  # Cambiado a filter_by
     if not animal:
         return jsonify({"mensaje": "Animal no encontrado"}), 404
 
@@ -171,22 +151,26 @@ def eliminar_animal(nombre):
     db.session.commit()
     return jsonify({"mensaje": "Animal eliminado correctamente"})
 
-# Endpoint para agregar una vacuna a un animal
-@app.route('/animales/<int:id>/vacunas', methods=['POST'])
-def agregar_vacuna(id):
-    animal = Animal.query.get(id)
+
+# Endpoint para obtener un animal especÃ­fico por nombre
+@app.route('/animales/<string:nombre>', methods=['GET'])
+def obtener_animal(nombre):
+    animal = Animal.query.filter_by(nombre=nombre).first()  # Cambiado a filter_by
     if not animal:
         return jsonify({"mensaje": "Animal no encontrado"}), 404
 
-    datos = request.json
-    nueva_vacuna = Vacuna(
-        nombre=datos["nombre"],
-        fecha=datos["fecha"],
-        animal_id=id
-    )
-    db.session.add(nueva_vacuna)
-    db.session.commit()
-    return jsonify({"mensaje": "Vacuna agregada correctamente"}), 201
+    resultado = {
+        animal.nombre: {
+            "id": animal.id,
+            "tipo": animal.tipo,
+            "raza": animal.raza,
+            "color": animal.color,
+            "foto": animal.foto,
+            "fecha_nacimiento": animal.fecha_nacimiento,
+            "vacunas": {vacuna.nombre: vacuna.fecha for vacuna in animal.vacunas}
+        }
+    }
+    return jsonify(resultado)
 
 # Endpoint para obtener las vacunas de un animal
 @app.route('/animales/<int:id>', methods=['GET'])
