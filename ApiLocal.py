@@ -62,17 +62,21 @@ def home():
 @app.route('/animales', methods=['GET'])
 def obtener_animales():
     animales = Animal.query.all()
-    resultado = {
-        animal.nombre: {
-            "id": animal.id,
-            "tipo": animal.tipo,
-            "raza": animal.raza,
-            "color": animal.color,
-            "foto": animal.foto,
-            "fecha_nacimiento": animal.fecha_nacimiento,
-            "vacunas": {vacuna.nombre: vacuna.fecha for vacuna in animal.vacunas}  # Vacunas del animal
-        } for animal in animales
-    }
+    
+    resultado = [
+        {
+            animal.nombre: {
+                "tipo": animal.tipo,
+                "raza": animal.raza,
+                "color": animal.color,
+                "foto": animal.foto,
+                "fecha_nacimiento": animal.fecha_nacimiento,
+                "vacunas": {vacuna.nombre: {"fecha": vacuna.fecha} for vacuna in animal.vacunas}
+            }
+        } 
+        for animal in animales
+    ]
+
     return jsonify(resultado)
 
 
@@ -176,26 +180,26 @@ def obtener_animal(nombre):
     return jsonify(resultado)
 
 
-# Endpoint para obtener las vacunas de un animal
-@app.route('/animales/<int:id>', methods=['GET'])
-def obtener_animal_por_id(id):
+# Obtener solo las vacunas de un animal específico
+@app.route('/animales/<int:id>/vacunas', methods=['GET'])
+def obtener_vacunas_animal(id):
     animal = Animal.query.get(id)
+    
     if not animal:
         return jsonify({"mensaje": "Animal no encontrado"}), 404
 
-    # Incluir las vacunas dentro de los datos del animal
-    resultado = {
-        "id": animal.id,
-        "nombre": animal.nombre,
-        "tipo": animal.tipo,
-        "raza": animal.raza,
-        "color": animal.color,
-        "foto": animal.foto,
-        "fecha_nacimiento": animal.fecha_nacimiento,
-        "vacunas": {vacuna.nombre: vacuna.fecha for vacuna in animal.vacunas}  # Vacunas del animal
-    }
+    vacunas = {vacuna.nombre: {"fecha": vacuna.fecha} for vacuna in animal.vacunas}
 
-    return jsonify(resultado)
+    return jsonify({"vacunas": vacunas})
+
+# Obtener todas las vacunas de la base de datos
+@app.route('/vacunas', methods=['GET'])
+def obtener_todas_vacunas():
+    vacunas = Vacuna.query.all()
+    
+    resultado = {vacuna.nombre: {"fecha": vacuna.fecha} for vacuna in vacunas}
+    
+    return jsonify({"vacunas": resultado})
 
 
 if __name__ == '__main__':
