@@ -20,7 +20,8 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:uwqNdAJiQSzAvVUCsJwPhqPzCDxpwpOd@roundhouse.proxy.rlwy.net:47292/railway' # o DATABASE_URL
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
@@ -30,7 +31,7 @@ migrate = Migrate(app, db)
 
 # Definir el modelo de datos para los animales
 class Animal(db.Model):
-    id = db.Column(db.Integer, primary_key=True)  # Agregar un ID unico
+    id = db.Column(db.Integer, primary_key=True)  # Ya es la clave primaria
     nombre = db.Column(db.String(50), nullable=False, unique=True)
     tipo = db.Column(db.String(50), nullable=False)
     raza = db.Column(db.String(50), nullable=False)
@@ -74,6 +75,7 @@ def obtener_animales():
     }
     return jsonify(resultado)
 
+
 # Buscar animales por tipo, color o raza
 @app.route('/animales/buscar', methods=['GET'])
 def buscar_animales():
@@ -116,7 +118,6 @@ def agregar_animal():
     return jsonify({"mensaje": "Animal agregado correctamente"}), 201
 
 
-
 # Endpoint para actualizar un animal por nombre
 @app.route('/animales/<string:nombre>', methods=['PUT'])
 def actualizar_animal(nombre):
@@ -129,6 +130,8 @@ def actualizar_animal(nombre):
     animal.raza = datos.get("raza", animal.raza)
     animal.color = datos.get("color", animal.color)
     animal.nombre = datos.get("nombre", animal.nombre)
+    animal.foto = datos.get("foto", animal.foto)
+    animal.fecha_nacimiento = datos.get("fecha_nacimiento", animal.fecha_nacimiento)
 
     db.session.commit()
     return jsonify({"mensaje": "Animal actualizado correctamente"})
@@ -172,6 +175,7 @@ def obtener_animal(nombre):
     }
     return jsonify(resultado)
 
+
 # Endpoint para obtener las vacunas de un animal
 @app.route('/animales/<int:id>', methods=['GET'])
 def obtener_animal_por_id(id):
@@ -195,4 +199,4 @@ def obtener_animal_por_id(id):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000,debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
